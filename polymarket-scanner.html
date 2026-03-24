@@ -266,9 +266,6 @@
   .sp-trade:active { opacity: 0.85; }
 
   /* ─ FABs ─────────────────────────────────────── */
-  #fab-demo { position: fixed; bottom: 96px; right: 18px; width: 48px; height: 48px; border-radius: 14px; background: rgba(0,150,136,0.88); color: #fff; border: none; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,150,136,0.4); z-index: 300; }
-  #fab-demo:active { transform: scale(0.92); }
-  #fab-demo-lbl { position: fixed; bottom: 80px; right: 14px; font-size: 8px; font-weight: 700; color: #009688; letter-spacing: 0.5px; z-index: 300; text-align: center; }
   #fab { position: fixed; bottom: 20px; right: 18px; width: 60px; height: 60px; border-radius: 18px; border: none; background: linear-gradient(135deg,#1A1060,#3730A3); color: #fff; cursor: pointer; font-size: 26px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 20px rgba(55,48,163,0.5); z-index: 300; transition: transform 0.15s; }
   #fab:active { transform: scale(0.94); }
   #fab.spin { animation: fspin 1.5s linear infinite; }
@@ -332,7 +329,7 @@
 <!-- STATUS -->
 <div id="status-bar">
   <div id="dot"></div>
-  <span id="stxt">Tap ▶ to scan · or 🎲 for demo</span>
+  <span id="stxt">Scanning live markets…</span>
 </div>
 <div id="prog-o"><div id="prog-i"></div></div>
 
@@ -369,8 +366,6 @@
 </div>
 
 <!-- FABs -->
-<button id="fab-demo" onclick="loadDemo()">🎲</button>
-<div id="fab-demo-lbl">DEMO</div>
 <button id="fab" onclick="scan()">▶</button>
 <div id="snack"></div>
 
@@ -713,7 +708,6 @@ function renderBtcCard(m, rec, demo=false) {
 
   return `
 <div class="btc-card">
-  ${demo?`<div style="padding:7px 14px 0;"><span class="demo-tag btc">🎲 SAMPLE</span></div>`:''}
   <div class="btc-topbar">
     <div class="btc-logo">₿</div>
     <div class="btc-title-col">
@@ -804,7 +798,6 @@ function renderSpCard(m, rec, demo=false) {
 
   return `
 <div class="sp-card">
-  ${demo?`<div style="padding:8px 14px 0;"><span class="demo-tag sp">🎲 SAMPLE</span></div>`:''}
   <div class="sp-head">
     <div class="sp-icon-box">
       <div class="sp-pct">${pct}%</div>
@@ -865,63 +858,6 @@ function renderSections(btcList, spList) {
 function btcSkel(){return`<div class="skel-c"><div class="sk-row"><div class="sk btc" style="width:40px;height:40px;border-radius:20px;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:7px;"><div class="sk btc" style="height:12px;width:80%;"></div><div class="sk btc" style="height:10px;width:50%;"></div></div></div><div class="sk btc" style="height:160px;border-radius:8px;"></div><div class="sk btc" style="height:9px;border-radius:4px;"></div><div class="sk btc" style="height:9px;border-radius:4px;"></div></div>`;}
 function spSkel(n){return Array.from({length:n},()=>`<div class="skel-c sp"><div class="sk-row"><div class="sk spc" style="width:52px;height:52px;border-radius:12px;flex-shrink:0;"></div><div style="flex:1;display:flex;flex-direction:column;gap:8px;"><div class="sk spc" style="height:14px;width:85%;"></div><div class="sk spc" style="height:12px;width:55%;"></div></div></div><div class="sk spc" style="height:5px;border-radius:3px;"></div><div style="display:flex;gap:6px;"><div class="sk spc" style="height:28px;border-radius:14px;flex:1;"></div><div class="sk spc" style="height:28px;border-radius:14px;flex:1;"></div><div class="sk spc" style="height:28px;border-radius:14px;flex:1;"></div><div class="sk spc" style="height:28px;border-radius:14px;flex:1;"></div></div></div>`).join('');}
 
-/* ═══════════════════════════════════════════════
-   SAMPLE DATA
-═══════════════════════════════════════════════ */
-function makeSamples() {
-  const now = Date.now(), seed = livePrice || 70000;
-  const min = m => new Date(now + m * 60_000).toISOString();
-  const hr  = h => new Date(now + h * 3_600_000).toISOString();
-
-  const btc = [
-    { question:"Will BTC/USD be HIGHER in the next 5 minutes?",  outcomePrices:'["0.845","0.155"]', outcomes:'["Yes","No"]', liquidity:124000, endDate:min(4.8), slug:null, conditionId:null, _ptb:seed+40,  _book:{bids:[{price:'0.839'}],asks:[{price:'0.851'}]} },
-  ];
-
-  const sports = [
-    { question:"Lakers vs Spurs",               outcomePrices:'["0.875","0.125"]', outcomes:'["Yes","No"]', liquidity:318000, endDate:hr(6.2),  _sport:{icon:'🏀',label:'NBA'}, slug:null, conditionId:null, _book:{bids:[{price:'0.869'}],asks:[{price:'0.881'}]} },
-    { question:"Real Madrid vs Barcelona",       outcomePrices:'["0.831","0.169"]', outcomes:'["Yes","No"]', liquidity:445000, endDate:hr(3.5),  _sport:{icon:'⚽',label:'La Liga'}, slug:null, conditionId:null, _book:{bids:[{price:'0.824'}],asks:[{price:'0.838'}]} },
-    { question:"Pacquiao vs Mayweather",         outcomePrices:'["0.803","0.197"]', outcomes:'["Yes","No"]', liquidity:72400,  endDate:hr(22.1), _sport:{icon:'🥊',label:'Boxing'}, slug:null, conditionId:null, _book:{bids:[{price:'0.797'}],asks:[{price:'0.810'}]} },
-    { question:"Chiefs vs Eagles",               outcomePrices:'["0.864","0.136"]', outcomes:'["Yes","No"]', liquidity:193200, endDate:hr(18.3), _sport:{icon:'🏈',label:'NFL'}, slug:null, conditionId:null, _book:{bids:[{price:'0.858'}],asks:[{price:'0.870'}]} },
-    { question:"Djokovic vs Alcaraz",            outcomePrices:'["0.891","0.109"]', outcomes:'["Yes","No"]', liquidity:56800,  endDate:hr(7.6),  _sport:{icon:'🎾',label:'Tennis'}, slug:null, conditionId:null, _book:{bids:[{price:'0.885'}],asks:[{price:'0.897'}]} },
-    { question:"Dodgers vs Yankees",             outcomePrices:'["0.841","0.159"]', outcomes:'["Yes","No"]', liquidity:148600, endDate:hr(4.1),  _sport:{icon:'⚾',label:'MLB'}, slug:null, conditionId:null, _book:{bids:[{price:'0.835'}],asks:[{price:'0.847'}]} },
-    { question:"Verstappen vs Hamilton",         outcomePrices:'["0.858","0.142"]', outcomes:'["Yes","No"]', liquidity:93200,  endDate:hr(11.3), _sport:{icon:'🏎',label:'F1'}, slug:null, conditionId:null, _book:{bids:[{price:'0.852'}],asks:[{price:'0.864'}]} },
-    { question:"Celtics vs Warriors",            outcomePrices:'["0.819","0.181"]', outcomes:'["Yes","No"]', liquidity:261400, endDate:hr(5.7),  _sport:{icon:'🏀',label:'NBA'}, slug:null, conditionId:null, _book:{bids:[{price:'0.813'}],asks:[{price:'0.825'}]} },
-    { question:"Liverpool vs Manchester City",   outcomePrices:'["0.883","0.117"]', outcomes:'["Yes","No"]', liquidity:310000, endDate:hr(2.8),  _sport:{icon:'⚽',label:'Premier League'}, slug:null, conditionId:null, _book:{bids:[{price:'0.877'}],asks:[{price:'0.889'}]} },
-    { question:"Tyson vs Paul",                  outcomePrices:'["0.852","0.148"]', outcomes:'["Yes","No"]', liquidity:87600,  endDate:hr(14.5), _sport:{icon:'🥊',label:'Boxing'}, slug:null, conditionId:null, _book:{bids:[{price:'0.846'}],asks:[{price:'0.858'}]} },
-  ];
-
-  return { btc, sports };
-}
-
-async function loadDemo() {
-  cIdx = 0; Object.keys(charts).forEach(k=>delete charts[k]);
-  const dfab = $('fab-demo'); dfab.textContent='⏳';
-  $('btc-list').innerHTML = btcSkel();
-  $('sp-list').innerHTML  = spSkel(4);
-
-  // Fetch real BTC price first
-  if (!livePrice) {
-    setStat('Fetching live BTC price…');
-    const p = await fetchBtcPrice();
-    if (p > 0) { livePrice = p; priceHistory = [{t:Date.now(),p}]; updatePriceHeader(); }
-    else { livePrice = 70412; priceHistory = [{t:Date.now(),p:70412}]; }
-  }
-  startPriceFeed(livePrice);
-
-  const c = cfg();
-  const { btc, sports } = makeSamples();
-  const btcP = btc.map(m=>({m,rec:buildRec(m,m._book,c),demo:true})).filter(x=>x.rec.pass);
-  const spP  = sports.map(m=>({m,rec:buildRec(m,m._book,c),demo:true})).filter(x=>x.rec.pass);
-  btcP.sort((a,b)=>a.rec.h-b.rec.h);
-  spP.sort((a,b)=>a.rec.h-b.rec.h);
-
-  setTimeout(()=>{
-    renderSections(btcP, spP);
-    setStat(`🎲 Demo — ${btcP.length} BTC · ${spP.length} Sports · live BTC price`, 'ok');
-    snack(`${btcP.length+spP.length} sample markets loaded`);
-    dfab.textContent='🎲'; setProg(100);
-  }, 500);
-}
 
 /* ═══════════════════════════════════════════════
    CATEGORIZE  (for live scan)
@@ -995,15 +931,10 @@ async function scan() {
   } catch(err) {
     setProg(100);fab.classList.remove('spin');fab.textContent='▶';
     console.error(err);
-    // Auto-fallback: load demo data so app is never blank
-    setStat('⚠️ Live feed unavailable — showing sample markets','err');
-    snack('Live markets unreachable — loading sample data');
-    const c2=cfg();
-    const {btc,sports}=makeSamples();
-    const btcP=btc.map(m=>({m,rec:buildRec(m,m._book,c2),demo:true})).filter(x=>x.rec.pass);
-    const spP=sports.map(m=>({m,rec:buildRec(m,m._book,c2),demo:true})).filter(x=>x.rec.pass);
-    btcP.sort((a,b)=>a.rec.h-b.rec.h);spP.sort((a,b)=>a.rec.h-b.rec.h);
-    setTimeout(()=>{renderSections(btcP,spP);setTimeout(()=>Object.keys(charts).forEach(drawChart),80);},300);
+    setStat('⚠️ Market feed unavailable — tap ▶ to retry','err');
+    $('btc-list').innerHTML=`<div class="empty-s btc">⚠️ ${esc(err.message)}</div>`;
+    $('sp-list').innerHTML=`<div class="empty-s sp">⚠️ Check connection and tap ▶ to retry</div>`;
+    snack('Feed unavailable — tap ▶ to retry');
   }
 }
 
