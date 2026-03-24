@@ -399,7 +399,7 @@
 ═══════════════════════════════════════════════ */
 const GAMMA       = 'https://gamma-api.polymarket.com';
 const CLOB        = 'https://clob.polymarket.com';
-const CORS_PROXY  = 'https://corsproxy.io/?url=';
+const CORS_PROXY  = 'https://corsproxy.io/?';
 const BETS  = [1, 5, 10];
 
 const SPORTS_KW = ['nfl','nba','mlb','nhl','mls','ufc','fifa','ipl','f1','formula','soccer','football','basketball','baseball','hockey','tennis','golf','rugby','cricket','boxing','mma','champions league','premier league','la liga','bundesliga','serie a','super bowl','world series','stanley cup','playoffs','tournament','warriors','lakers','celtics','bulls','nets','heat','knicks','suns','bucks','chiefs','cowboys','patriots','eagles','49ers','packers','ravens','bears','yankees','dodgers','cubs','red sox','astros','braves','manchester','liverpool','chelsea','arsenal','barcelona','real madrid','bayern','djokovic','federer','nadal','lebron','curry','mahomes','verstappen','hamilton','ronaldo','messi','mbappe','haaland','fury','canelo','tyson','usyk','mcgregor','pacquiao','mayweather'];
@@ -1009,6 +1009,9 @@ async function scan() {
 
 // Resize charts when window resizes
 window.addEventListener('resize', ()=>setTimeout(()=>Object.keys(charts).forEach(drawChart),100));
+
+// Auto-scan on load — no button press needed
+window.addEventListener('DOMContentLoaded', ()=>setTimeout(scan, 600));
 
 // PWA Service Worker
 if ('serviceWorker' in navigator) {
