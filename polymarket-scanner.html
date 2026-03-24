@@ -397,8 +397,9 @@
 /* ═══════════════════════════════════════════════
    CONSTANTS & CONFIG
 ═══════════════════════════════════════════════ */
-const GAMMA = 'https://gamma-api.polymarket.com';
-const CLOB  = 'https://clob.polymarket.com';
+const GAMMA       = 'https://gamma-api.polymarket.com';
+const CLOB        = 'https://clob.polymarket.com';
+const CORS_PROXY  = 'https://corsproxy.io/?url=';
 const BETS  = [1, 5, 10];
 
 const SPORTS_KW = ['nfl','nba','mlb','nhl','mls','ufc','fifa','ipl','f1','formula','soccer','football','basketball','baseball','hockey','tennis','golf','rugby','cricket','boxing','mma','champions league','premier league','la liga','bundesliga','serie a','super bowl','world series','stanley cup','playoffs','tournament','warriors','lakers','celtics','bulls','nets','heat','knicks','suns','bucks','chiefs','cowboys','patriots','eagles','49ers','packers','ravens','bears','yankees','dodgers','cubs','red sox','astros','braves','manchester','liverpool','chelsea','arsenal','barcelona','real madrid','bayern','djokovic','federer','nadal','lebron','curry','mahomes','verstappen','hamilton','ronaldo','messi','mbappe','haaland','fury','canelo','tyson','usyk','mcgregor','pacquiao','mayweather'];
@@ -932,9 +933,17 @@ async function fetchGamma(c){
   const now=new Date(),maxEnd=new Date(now.getTime()+Math.max(c.timeWin,c.btcWin/60)*3_600_000);
   let all=[],offset=0;
   while(true){
-    const url=`${GAMMA}/markets?active=true&closed=false&limit=500&offset=${offset}&order=endDateIso&ascending=true`;
+    const rawUrl=`${GAMMA}/markets?active=true&closed=false&limit=500&offset=${offset}&order=endDateIso&ascending=true`;
     let data;
-    try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);data=await r.json();}catch(e){throw new Error('Market feed unreachable — check connection.');}
+    // Try direct first, then CORS proxy fallback
+    async function tryFetch(u){const r=await fetch(u);if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}
+    try{
+      data=await tryFetch(rawUrl);
+    }catch(e){
+      setStat('Direct API blocked — trying proxy…');
+      try{data=await tryFetch(CORS_PROXY+encodeURIComponent(rawUrl));}
+      catch(e2){throw new Error('Market feed unreachable — check connection.');}
+    }
     if(!Array.isArray(data)||!data.length)break;
     all=all.concat(data);setStat(`Loading… ${all.length} markets`);
     const lastEnd=new Date(data.at(-1).endDate||data.at(-1).endDateIso||'9999');
@@ -985,10 +994,16 @@ async function scan() {
     snack(tot>0?`${tot} markets found`:'No matches — try widening filters');
   } catch(err) {
     setProg(100);fab.classList.remove('spin');fab.textContent='▶';
-    setStat('Error: '+err.message,'err');
-    $('btc-list').innerHTML=`<div class="empty-s btc">⚠️ ${esc(err.message)}</div>`;
-    $('sp-list').innerHTML=`<div class="empty-s sp">⚠️ Check connection</div>`;
-    snack('Scan failed — check connection');console.error(err);
+    console.error(err);
+    // Auto-fallback: load demo data so app is never blank
+    setStat('⚠️ Live feed unavailable — showing sample markets','err');
+    snack('Live markets unreachable — loading sample data');
+    const c2=cfg();
+    const {btc,sports}=makeSamples();
+    const btcP=btc.map(m=>({m,rec:buildRec(m,m._book,c2),demo:true})).filter(x=>x.rec.pass);
+    const spP=sports.map(m=>({m,rec:buildRec(m,m._book,c2),demo:true})).filter(x=>x.rec.pass);
+    btcP.sort((a,b)=>a.rec.h-b.rec.h);spP.sort((a,b)=>a.rec.h-b.rec.h);
+    setTimeout(()=>{renderSections(btcP,spP);setTimeout(()=>Object.keys(charts).forEach(drawChart),80);},300);
   }
 }
 
